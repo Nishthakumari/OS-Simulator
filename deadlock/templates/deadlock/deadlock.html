@@ -17,312 +17,334 @@
 	crossorigin="anonymous"></script>
 
 <script>
-	var num;
-	var index;
-	var alloc = [];
-	var need = [];
-	var p = [];
-	var r = [];
-	var vis = [];
-	var recStack = [];
-	var index;
-	var num;
-	var g;
-	var q = [];
-	function EnterInputs() {
-		num = parseInt(document.getElementById("totalresources").value);
-		if (isNaN(num) || num <= 0)
-			window.alert("Enter valid input");
-		else {
-			index = parseInt(document.getElementById("totalprocesses").value);
-			if (isNaN(index)) {
-				var d1 = document.getElementById("allocated");
-				d1.innerHTML = "";
-				var d2 = document.getElementById("need");
-				d2.innerHTML = "";
-			}
-			else {
-				var d1 = document.getElementById("allocated");
-				d1.innerHTML = "";
-				var p = document.createElement("h5");
-				p.setAttribute("style", "text-align:center");
-				p.textContent = "Enter Allocation Matrix ( Allocated - 1 Not Allocated - 0) ";
-				d1.appendChild(p);
-				var br = document.createElement("br");
-				for (var i = 0; i < index; i++) {
-					var card = document.createElement("card");
-					card.setAttribute("style", "width:100%;float:left;height:75px;text-align:center;");
-					var p1 = document.createElement("p");
-					//p1.setAttribute("style","margin-left:10px;float:left;margin-right:20px;");
-					//p1.textContent = "Process "+(i+1)+": ";
-					card.appendChild(p1);
-					for (var j = 0; j < num; j++) {
-						var inp1 = document.createElement("input");
-						inp1.setAttribute("id", "AR" + i + "," + j);
-						inp1.setAttribute("placeholder", "P-" + (i + 1) + " R-" + (j + 1));
-						inp1.setAttribute("style", "width:60px;text-align:center;margin-right:50px;float:center;");
-						card.appendChild(inp1);
-					}
-					d1.appendChild(card);
-					d1.appendChild(br);
-					d1.appendChild(br);
-				}
-				var d2 = document.getElementById("need");
-				d2.innerHTML = "";
-				var c = document.createElement("card");
-				c.setAttribute("style", "width:100%;height:50px;");
-				d1.appendChild(c);
-				var p2 = document.createElement("h5");
-				p2.setAttribute("style", "text-align:center");
-				p2.textContent = "Enter Request Matrix (Request - 1 No Request - 0 ) ";
-				d2.appendChild(p2);
-				var br = document.createElement("br");
-				for (var i = 0; i < index; i++) {
-					var card1 = document.createElement("card");
-					card1.setAttribute("style", "width:100%;float:left;height:75px;text-align:center;");
-					var p3 = document.createElement("p");
-					//p3.setAttribute("style","margin-left:10px;float:left;margin-right:20px");
-					//p3.textContent = "Process "+(i+1)+": ";
-					card1.appendChild(p3);
-					for (var j = 0; j < num; j++) {
-						var inp1 = document.createElement("input");
-						inp1.setAttribute("id", "NR" + i + "," + j);
-						inp1.setAttribute("placeholder", "P-" + (i + 1) + " R-" + (j + 1));
-						inp1.setAttribute("style", "width:60px;text-align:center;margin-right:50px;float:center;");
-						card1.appendChild(inp1);
-					}
-					d2.appendChild(card1);
-					d2.appendChild(br);
-				}
-			}
-		}
-	}
+var res,pro;
+		 var resource;
+
+	 function BuildFormFields($amount) // For Resorce allocation
+	 {
+						 // form1 = document.resource;
+						 //console.log(form1);
+						 res = $amount;
+		 var
+			 $container = document.getElementById('FormFields'),
+			 $item, $field, $i;
+
+		 $container.innerHTML = '';
+		 for ($i = 0; $i < $amount; $i++) {
+			 $item = document.createElement('div');
+			 $item.style.margin = '10px';
 
 
-	class Graph {
-		constructor(V) {
-			this.V = V;
-			this.AdjList = new Map();
-		}
-		addVertex(v) {
-			this.AdjList.set(v, []);
-		}
-		addEdge(v, w) {
-			this.AdjList.get(v).push(w); // W is added to v's list
-		}
 
-		CheckforCycle1(v) {
-			if (vis[v] == false) {
-				vis[v] = true;
-				recStack[v] = true;
-				//Recurssion to check for all the vertices adjacent to the current vertex
-				var get_neighbours = this.AdjList.get(v)
-				for (var i in get_neighbours) {
-					var get_elem = get_neighbours[i];
-					q.push(get_elem);
-					if (!vis[get_elem] && g.CheckforCycle1(get_elem))
-						return true;
-					else if (recStack[get_elem])
-						return true;
-				}
-			}
-			recStack[v] = false; //The vertex is removed from the recursion stack
-			return false;
-		}
+			 //$field = document.createElement('span');
+			 //$field.innerHTML = 'Resource ' + $i;
+			 //$field.style.marginRight = '10px';
+								 $field = document.createElement('label');
+								 $field.innerHTML = 'Resource '+$i;
+			 $item.appendChild($field);
+
+			 $field = document.createElement('input');
+			 $field.name = 'Design[' + $i + ']';
+			 $field.type = 'text';
+								 $field.setAttribute("class","form-control");
+			 $item.appendChild($field);
 
 
-		//Tjis function return if the graph is a cycle or not
-		CheckforCycle2() {
-			for (var i = 0; i < 40; i++) {
-				vis[i] = false;
-				recStack[i] = false;
-			}
-			//Recursive function is called to detect a cycle
-			for (var i = 0; i < p.length; i++) {
-				if (g.CheckforCycle1(p[i]))
-					return true;
-			}
-			for (var i = 0; i < r.length; i++) {
-				if (g.CheckforCycle1(r[i]))
-					return true;
-			}
-			return false;
-		}
-	};
+			 $container.appendChild($item);
+								// resource[$i] = form1[$i].value;
 
-	function createGraph() {
-		g = new Graph(40);
-		for (var i = 0; i < p.length; i++)
-			g.addVertex(p[i]);
-		for (var i = 0; i < r.length; i++)
-			g.addVertex(r[i]);
+		 }
+					 //  console.log(resource);
+				 }
+				 function BuildFormFields2($amount) //For Allocation
+	 {
+		 pro = $amount;
+						 console.log(res);
+		 var
+			 $container = document.getElementById('FormFields1'),
+			 $item, $field, $i;
 
-		for (var i = 0; i < index; i++) {
-			for (var j = 0; j < num; j++) {
-				if (alloc[i][j] != 0) {
-					g.addEdge(20 + j, i);
-				}
-			}
-		}
-		for (var i = 0; i < index; i++) {
-			for (var j = 0; j < num; j++) {
-				if (need[i][j] != 0)
-					g.addEdge(i, j + 20);
-			}
-		}
-		var div = document.getElementById("output");
-		var div1 = document.getElementById("output1");
-		div.innerHTML = "";
-		if (g.CheckforCycle2()) {
-			var pp = document.createElement("h5");
-			pp.setAttribute("style", "margin-left:20px;");
-			pp.textContent = " A cycle is found in the graph, and a deadlock exists";
-			div.appendChild(pp);
-			var card2 = document.createElement("h5");
-			card2.textContent = "One present Cycle Is:";
-			card2.setAttribute("style", "float:left;margin-left:423px;widht:100%;");
-			div1.appendChild(card2);
-			var n = q.length - 1;
-			for (var i = 0; i < q.length; i++) {
-				var p6 = document.createElement("h5");
-				var p7 = document.createElement("h5");
-				p6.setAttribute("style", "float:left;margin-left:10px;margin-right:10px;");
-				p7.setAttribute("style", "float:left;margin-left:10px;margin-right:10px;");
-				if (q[i] < 20) {
-					if (i != n)
-						p6.textContent = "P" + (q[i] + 1) + "--(wants)-->";
-					else if (i == n && q[n] != q[0])
-						p6.textContent = "P" + (q[i] + 1) + "--(wants)-->";
-					else
-						p6.textContent = "P" + (q[i] + 1);
-					div1.appendChild(p6);
-				}
-				else if (q[i] >= 20) {
-					if (i != n)
-						p7.textContent = "R" + (q[i] + 1 - 20) + "--(allocated to)-->";
-					else if (i == n && q[n] != q[0])
-						p7.textContent = "R" + (q[i] + 1 - 20) + "--(allocated to)-->";
-					else
-						p7.textContent = "R" + (q[i] + 1 - 20);
-					div1.appendChild(p7);
-				}
-				console.log(q[i]);
-			}
-			var p8 = document.createElement("h5");
-			p8.setAttribute("style", "float:left;margin-left:20px;margin-right:20px;");
-			var l = q.length - 1;
-			if (q[l] != q[0] && q[l] < 20) {
-				console.log(q[0]);
-				p8.textContent = "R" + (q[0] + 1 - 20);
-				div1.appendChild(p8);
-			}
-			else if (q[l] != q[0] && q[l] >= 20) {
-				console.log(q[0]);
-				p8.textContent = "R" + (q[0] + 1);
-				div1.appendChild(p8);
-			}
-			console.log("Graph Contains a Cycle");
-		}
-		else {
-			var p1 = document.createElement("h5");
-			p1.setAttribute("style", "margin-left:20px;");
-			p1.textContent = " No Deadlock";
-			div.appendChild(p1);
-			console.log("Graph Doesn't Contain Any Cycles");
-		}
+		 $container.innerHTML = '';
+		 for ($i = 0; $i < $amount; $i++) {
+								 for($j = 0; $j < res; $j++)
+								 {
+										 $item = document.createElement('div');
+										 $item.style.margin = '10px';
+										// $item.style.float = 'center';
 
-	}
+										 $field = document.createElement('label');
+										 $field.innerHTML = 'Need for process '+$i+' Res: ' +$j;
+										 //$field.style.marginRight = '10px';
+					 $item.appendChild($field);
 
-	function clear_data() {
-		var a = 3;
-		console.log(a);
-		alloc = [];
-		max = [];
-		need = [];
-		p = [];
-		r = [];
-		q = [];
-		vis = [];
-		recStack = [];
-		//index =0;
-		//num =0;
-		var clr1 = document.getElementById("output");
-		var clr2 = document.getElementById("output1");
-		clr1.innerHTML = "";
-		clr2.innerHTML = "";
-		var clr3 = document.getElementById("allocated");
-		var clr4 = document.getElementById("need");
-		clr3.innerHTML = "";
-		clr4.innerHTML = "";
-		var clr5 = document.getElementById("totalresources");
-		var clr6 = document.getElementById("totalprocesses");
-		clr5.value = "";
-		clr6.value = "";
-	}
+										 $field = document.createElement('input');
 
-	function cleardata() {
-		alloc = [];
-		max = [];
-		need = [];
-		p = [];
-		r = [];
-		q = [];
-		var clr1 = document.getElementById("output");
-		var clr2 = document.getElementById("output1");
-		clr1.innerHTML = "";
-		clr2.innerHTML = "";
-	}
+										 $field.name = 'Design[' + $i + ']';
+										 $field.type = 'text';
+										 $field.setAttribute("class","form-control");
+										 $item.appendChild($field);
 
-	function detection() {
-		cleardata();
-		for (var i = 0; i < index; i++) {
-			var temp1 = [];
-			for (var j = 0; j < num; j++) {
-				var inp1 = document.getElementById("AR" + i + "," + j).value;
-				if (isNaN(parseInt(inp1)) || inp1 < 0 || inp1 > 1) {
-					window.alert("Please Enter Valid Inputs");
-					return;
-				}
-
-				temp1.push(parseInt(inp1));
-			}
-			alloc.push(temp1);
-		}
-		for (var i = 0; i < index; i++) {
-			var temp1 = [];
-			for (var j = 0; j < num; j++) {
-				var inp1 = document.getElementById("NR" + i + "," + j).value;
-				if (isNaN(parseInt(inp1)) || inp1 < 0 || inp1 > 1) {
-					window.alert("Please Enter Valid Inputs");
-					return;
-				}
-				temp1.push(parseInt(inp1));
-
-			}
-			need.push(temp1);
-		}
-
-		for (var i = 0; i < num; i++) {
-			var c = 0;
-			for (var j = 0; j < index; j++) {
-				if (alloc[j][i] > 0)
-					c++;
-				if (c > 1) {
-					window.alert("Resource " + (i + 1) + " Cannot be Allocated to More Than One Resource");
-					return;
-				}
-			}
-
-		}
-		for (var i = 0; i < index; i++)
-			p.push(i);
-		for (var i = 0; i < num; i++)
-			r.push(20 + i);
+									//   console.log($item);
+										 $container.appendChild($item);
+								 }
 
 
-		createGraph();
-	}
+		 }
+						 BuildFormFields3($amount);
+				 }
 
+	 function BuildFormFields3($amount) //For Allocation
+	 {
+						 console.log(res);
+		 var
+			 $container = document.getElementById('FormFields2'),
+			 $item, $field, $i;
+
+		 $container.innerHTML = '';
+		 for ($i = 0; $i < $amount; $i++) {
+								 for($j = 0; $j < res; $j++)
+								 {
+										 $item = document.createElement('div');
+										 $item.style.margin = '10px';
+
+										 $field = document.createElement('label');
+										 $field.innerHTML = 'Allocation for process '+$i+' Res: ' +$j;
+										 //$field.style.marginRight = '10px';
+										 $item.appendChild($field);
+
+										 $field = document.createElement('input');
+
+										 $field.name = 'Design[' + $i + ']';
+										 $field.type = 'text';
+										 $field.setAttribute("class","form-control");
+										 $item.appendChild($field);
+
+									//   console.log($item);
+										 $container.appendChild($item);
+								 }
+
+
+		 }
+				 }
+
+				 var y;
+	 function banker()
+	 {
+				 var res_form = document.resource;
+
+				 var resource = [];
+				 for(var i = 1;i <= res; i++)
+				 {
+					 resource[i-1] = Number(res_form[i].value);
+				 }
+				 console.log(resource);
+
+				 var form = document.Need;
+				 var ned = [];
+				 var i,j;
+				 console.log("PRO: "+pro+"RES: "+res);
+				 for(i = 1; i <= pro*res; i++)
+					 {
+						 ned[i-1] = Number(form[i].value);
+					 }
+					 var needy = [];
+					 for(var i = 0; i<pro;i++)
+					 {
+						 needy[i] = [];
+						 for(var j=0;j<res;j++)
+						 {
+							 needy[i][j] = ned[i*res+j];
+						 }
+					 }
+					 console.log(ned);
+				 console.log(needy);
+
+				 var alloc_form = document.Alloc;
+				 var alloc = [];
+				 for(var i = 0; i < pro; i++)
+					 {
+						 alloc[i] = [];
+						 for(var j = 0;j < res;j++)
+						 {
+							 alloc[i][j] = Number(alloc_form[i*res+j].value);
+																 console.log(alloc[i][j]);
+						 }
+					 }
+				 console.log(alloc);
+
+				 var avail = [];
+				 for(var i = 0; i < res; i++)
+					 avail[i] = resource[i];
+
+				 for(var i = 0; i < pro; i++)
+				 {
+					 for(var j = 0; j < res; j++)
+					 {
+						 avail[j] = avail[j] - alloc[i][j];
+						 needy[i][j] = needy[i][j] - alloc[i][j];
+					 }
+				 }
+				 console.log('avail: ' + avail);
+
+				 //TABLE for NEED
+
+				 var tab_need = document.getElementById("tab_need");
+				 var row = tab_need.insertRow(0);
+				 var cell = row.insertCell(0);
+				 cell.innerHTML = "<b>Need</b>";
+										 var pro_head = tab_need.insertRow(1);
+										 var cell = pro_head.insertCell(0);
+										 cell.innerHTML = "<b>Process</b>";
+										 for(i=1;i<=res;i++)
+										 {
+												 cell = pro_head.insertCell(i);
+												 cell.innerHTML = "<b>Res "+(i-1)+"</b>";
+										 }
+
+
+				 for(i=0;i<pro;i++)
+				 {
+					 var row = tab_need.insertRow(i+2);
+												 var cell = row.insertCell(0);
+												 cell.innerHTML = "<b>P"+i+"</b>";
+					 for(j=0;j<res;j++)
+					 {
+						 var cell = 	row.insertCell(j+1);
+						 cell.innerHTML = ned[res*i+j];
+					 }
+				 }
+
+										 //TABLE for ALLOC
+
+
+
+				 var tab_alloc = document.getElementById("tab_alloc");
+				 var row = tab_alloc.insertRow(0);
+				 var cell = row.insertCell(0);
+				 cell.innerHTML = "<b>Allocation</b>";
+										 var alloc_head = tab_alloc.insertRow(1);
+										 var cell = alloc_head.insertCell(0);
+										 cell.innerHTML = "<b>Process</b>";
+										 for(i=1;i<=res;i++)
+										 {
+												 cell = alloc_head.insertCell(i);
+												 cell.innerHTML = "<b>Res "+(i-1)+"</b>";
+										 }
+				 for(i=0;i<pro;i++)
+				 {
+					 var row = tab_alloc.insertRow(i+2);
+												 var cell = row.insertCell(0);
+												 cell.innerHTML = "<b>P"+i+"</b>";
+					 for(j=0;j<res;j++)
+					 {
+						 var cell = 	row.insertCell(j+1);
+						 cell.innerHTML = alloc[i][j];
+					 }
+				 }
+
+										 var prints = document.getElementById("printing");
+
+
+
+				 var i,j;
+				 var exec = 0; //Number of executed processes
+				 var ex = [0,0];
+				 for(var i = 0; i < pro; i++)
+				 {
+					 ex[i] = 0;
+				 }
+				 // Array ex checks if process 'i' is executed or not
+										 var iter = 1;
+				 while(1)
+				 {
+					 var exec1 = exec // exec1 is compared with exec at the end of the while loop to check for deadlock
+												 var li = document.createElement("li");
+												 li.appendChild(document.createTextNode("Iteration "+ iter));
+												 prints.appendChild(li);
+												 var ul1 = document.createElement("ul");
+					 for (i = 0; i < pro; i++)
+					 {
+						 var flag = 0
+						 if(ex[i] == 0)
+						 {
+																 var li = document.createElement("li");
+																 li.appendChild(document.createTextNode("Process "+ i+": "));
+																 ul1.append(li);
+																 prints.appendChild(ul1);
+																 var ul2 = document.createElement("ul");
+							 for (var j = 0; j < res; j++)
+							 {
+								 if((avail[j]) < needy[i][j])
+								 {
+									 flag = 1;
+									 break;
+								 }
+							 }
+
+							 if(flag)
+							 {
+								 console.log("Process " + i + " doesn't have enough resources");
+								 console.log("Need: " + needy[i]);
+								 console.log("Current resources available: " + avail);
+																		 var li = document.createElement("li");
+																		 li.appendChild(document.createTextNode("Process " + i + " doesn't have enough resources"));
+																		 ul2.append(li);
+																		 ul1.append(ul2);
+																		 prints.appendChild(ul1);
+																		 var li = document.createElement("li");
+																		 li.appendChild(document.createTextNode("Need: " + needy[i]));
+																		 ul2.append(li);
+																		 ul1.append(ul2);
+																		 prints.appendChild(ul1);
+																		 var li = document.createElement("li");
+																		 li.appendChild(document.createTextNode("Avail: " + avail));
+																		 ul2.append(li);
+																		 ul1.append(ul2);
+																		 prints.appendChild(ul1);
+							 }
+							 else
+							 {
+								 exec = exec + 1
+								 console.log("Process " + i + " has enough resources");
+																		 var li = document.createElement("li");
+																		 li.appendChild(document.createTextNode("Process " + i + " has enough resources"));
+																		 ul2.append(li);
+																		 ul1.append(ul2);
+																		 prints.appendChild(ul1);
+								 ex[i] = 1;
+								 for(var j = 0;j < res; j++)
+								 {
+									 avail[j] = avail[j] + alloc[i][j];
+								 }
+								 console.log("Current resources available: " + avail);
+																		 var li = document.createElement("li");
+																		 li.appendChild(document.createTextNode("Avail: " + avail));
+																		 ul2.append(li);
+																		 ul1.append(ul2);
+																		 prints.appendChild(ul1);
+							 }
+						 }
+					 }
+												 iter++;
+					 if(exec1 == exec && exec != pro) // Checks for deadlock
+					 {
+						 console.log("Deadlock");
+														 var li = document.createElement("li");
+														 li.appendChild(document.createTextNode("Deadlock"));
+														 prints.appendChild(li);
+						 break;
+					 }
+					 if(exec == pro)
+						 {
+																 console.log("Safe State");
+																 var li = document.createElement("li");
+																 li.appendChild(document.createTextNode("Safe State"));
+																 prints.appendChild(li);
+							 break;
+						 }
+				 }
+
+	 }
 
 </script>
 {% endblock %}
@@ -356,52 +378,63 @@
 
 </div> -->
 
-<div class="jumbotron jumbotron-fluid"
-	style="background-image: url({% static 'img/jumbo.png' %}); background-size: cover;">
-	<div class=" container">
-		<h1 class="display-4 pt-5">Deadlock Detection</h1>
-		<p class="lead">Deadlock Detection with Resource Allocation Graph</p>
-	</div>
-</div>
+<div class = "panel panel-primary"
+	        style="margin : 0.25cm 0.25cm 0.25cm 0.25cm;">
+	        <div class="panel-heading">
+	            <h2>Banker's Algorithm</h2>
+	        </div>
+			<div class="panel-body">
+				<form name = "resource">
+		            <div class = "form-group" style="margin-left:50px; float:left;">
+					<label>Number of Resource types:</label><input class="form-control" type="Number" onkeyup="BuildFormFields(parseInt(this.value, 10));" />
+					<div id="FormFields" style=""></div>
+		            </div>
+				</form>
+		        <form name = "Need">
+		            <div class = "form-group" style="margin-left:50px;float:left;">
+					<label>Number of Processes:</label> <input class="form-control" type="Number" onkeyup="BuildFormFields2(y = parseInt(this.value, 10));" />
+					<div id="FormFields1"></div>
+		            </div>
+					<!-- <button type="button" onclick="banker()">Try it</button> -->
+				</form>
+				 <form name = "Alloc">
+		             <div class = "form-group" style="margin-left:50px;float:left;margin-top:60px;">
+					<div id="FormFields2"></div>
+		            </div>
+				</form>
+				<!-- <button type="button" onclick="banker()">Try it</button> -->
+		        <!-- <br>
+		        <br>
+		        <br>
+		        <br><br>
+		        <br><br>
+		        <br>
+		        <br> -->
 
-<div class="container">
-	<div class="row">
-		<div class="col-5">
-			<div>Number of Resources:</div>
-			<input id="totalresources" type="text"></input>
+				<table id="tab_need" class="table table-hover">
+
+
+
+				</table>
+		        <!-- <br>
+		        <br>
+		        <br>
+		        <br><br>
+		        <br><br>
+		        <br> -->
+		        <table id="tab_alloc" class="table table-hover">
+
+
+				</table>
+
+		        <!-- <br>
+		        <br> -->
+		        <ul id = "printing">
+
+		        </ul>
+	        </div>
+			<div class="panel-footer">
+	            <button class="btn btn-primary btn-success" onclick="banker()">Run</button>
+	        </div>
 		</div>
-		<div class="col-5">
-			<div>Number of Processes:</div>
-			<input id="totalprocesses" onkeyup="EnterInputs()" type="text"></input>
-		</div>
-		<div class="col-2">
-			<button class="btn btn-primary" onclick="clear_data()">Clear Inputs</button>
-		</div>
-
-	</div>
-</div>
-
-
-<br>
-<br>
-<br>
-<div id="allocated" style="margin-left:10px;"></div>
-<br><br />
-<br><br />
-<div id="need" style="margin-left:10px;"></div>
-<br><br />
-<br><br />
-
-
-<div style="text-align:center; margin-bottom: 100px;">
-	<button class="btn btn-primary" onclick="detection()">Check for Deadlock</button>
-</div>
-<div id="output">
-
-</div>
-<br>
-<br />
-<div id="output1">
-
-</div>
 {% endblock %}
